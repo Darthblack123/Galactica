@@ -1,0 +1,134 @@
+# W
+WIDTH = 400
+HEIGHT = 600
+
+# A
+import random
+import time
+
+start = False
+gameover = False
+Level = 0
+background = Actor("backgroundspace2.jpeg")
+background.x = 200
+background.y = 300
+spaceship = Actor("spaceship_red.png")
+spaceship.x = 200
+spaceship.y = 500
+score = 0
+wait = 60
+bulletnumber = 0
+bulletlist = []  # The list for the bullets
+alienlist = []  # The list for aliens
+wait = 1
+speed = 3
+v = 4
+for i in range(v):
+    alien = Actor("spaceshipbad-removebg-preview.png")
+    alien.y = 0
+    alien.x = random.randint(20, 380)
+    alienlist.append(alien)
+    music.set_volume(0.75)
+    music.play("drive")
+
+# D
+def draw():
+    background.draw()
+    screen.draw.text(str(score), (330, 40), color="red", fontsize=50)
+    spaceship.draw()
+    for bullet in bulletlist:
+        bullet.draw()
+    for alien in alienlist:
+        alien.draw()
+    if start == False:
+        screen.fill("white")
+        screen.draw.text("Press T To Start", (80, 200), color="black", fontsize=50)
+        screen.draw.text("Press Space To Shoot", (20, 400), color="black", fontsize=50)
+
+    if gameover == True:
+        screen.fill("red")
+        screen.draw.text("You Lost", (125, 200), color="black", fontsize=50)
+        screen.draw.text(str(score), (200, 300), color="black", fontsize=75)
+        screen.draw.text("Press Y To Restart", (50, 50), color="black", fontsize=50)
+
+        music.fadeout(1)
+
+
+# U
+def update():
+    global bulletnumber, wait, bullet, x, alien, spaceship, score, wait, speed, start, gameover
+
+    if keyboard.t:
+        start = True
+    if keyboard.y:
+        gameover = False
+        score = 0
+        spaceship.y = 500
+        spaceship.x = 200
+        music.play("drive")
+
+
+    if wait > 0:
+        wait = wait - 1
+    else:
+        wait = 0
+    if keyboard.space and wait == 0:
+        bullet = Actor("bullet.png")
+        bullet.x = spaceship.x
+        bullet.y = spaceship.y - 40
+        bulletlist.append(bullet)
+        wait = 8
+        # schedule unique
+    for alien in alienlist:
+        for bullet in bulletlist:
+            if bullet.colliderect(alien):
+                sounds.blaster.play()
+                score = score + 1
+                alien.y = 0
+                alien.x = random.randint(50, 350)
+                bulletlist.remove(bullet)
+        for bullet in bulletlist:
+            if bullet.y <= 0:
+                bulletlist.remove(bullet)
+
+    if len(bulletlist) < 20:
+        for bullet in bulletlist:
+            bullet.y = bullet.y - 10
+    else:
+        for bullet in bulletlist:
+            bullet.y = bullet.y - 10
+    if keyboard.right or keyboard.d:
+        if spaceship.x < 350:
+            spaceship.x = spaceship.x + 8
+
+    elif keyboard.left or keyboard.a:
+        if spaceship.x > 50:
+            spaceship.x = spaceship.x - 8
+    elif keyboard.up or keyboard.w:
+        if spaceship.y > 0:
+            spaceship.y = spaceship.y - 8
+    elif keyboard.down or keyboard.s:
+        if spaceship.y < 560:
+            spaceship.y = spaceship.y + 8
+    elif keyboard.left and keyboard.up:
+        spaceship.y = spaceship.y + 8
+        spaceship.x = spaceship.x + 8
+
+    if alien.colliderect(spaceship):
+        gameover = True
+
+    if start == True:
+        for alien in alienlist:
+            alien.y = alien.y + 8  # y axis
+
+            # respawn at the top
+            if gameover == False:
+                if alien.y >= 600:
+                    alien.x = random.randint(20, 380)
+                    alien.y = -200
+
+    if score < 20:
+        v = 3
+    if score < 19:
+        v = 7
+
